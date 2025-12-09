@@ -1,0 +1,43 @@
+{
+  "name": "@snippkit/cli",
+  "version": "1.0.4",
+  "description": "Official CLI for SnippKit",
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "snix": "./bin/snix.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "package.json",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "cli",
+    "snippkit",
+    "developer-tools"
+  ],
+  "author": "SnippKit",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "chalk": "^4.1.2",
+    "cli-highlight": "^2.1.11",
+    "commander": "^11.1.0",
+    "conf": "^10.2.0",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.19.0",
+    "pkg": "^5.8.1"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "package": "npm run build && pkg dist/snix.cjs --name snix --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --out-path ./executables"
+  }
+}
