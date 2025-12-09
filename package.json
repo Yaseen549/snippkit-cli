@@ -1,6 +1,6 @@
 {
   "name": "@snippkit/cli",
-  "version": "1.0.9",
+  "version": "1.0.12",
   "description": "Official CLI for SnippKit",
   "type": "module",
   "main": "src/index.js",
@@ -22,7 +22,7 @@
     "developer-tools"
   ],
   "author": "SnippKit",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.6.0",
     "chalk": "^4.1.2",
