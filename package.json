@@ -1,6 +1,6 @@
 {
   "name": "@snippkit/cli",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Official CLI for SnippKit",
   "type": "module",
   "main": "src/index.js",
