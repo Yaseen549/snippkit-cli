@@ -1,7 +1,7 @@
-# SnippKit CLI (`SNiX`) v2 — Complete Master Command & Use-Case Guide
+# SnippKit CLI (`SNiX`) v3 — Complete Master Command & Use-Case Guide
 
 The official terminal companion for **SnippKit**.  
-This document is the definitive master manual covering **every single command, subcommand, alias, shortcut, flag, modifier, and usage possibility** implemented in SnippKit CLI v2 (`snix`).
+This document is the definitive master manual covering **every single command, subcommand, alias, shortcut, flag, modifier, and usage possibility** implemented in SnippKit CLI v3 (`snix`).
 
 ---
 
@@ -12,13 +12,13 @@ This document is the definitive master manual covering **every single command, s
                                │   SnippKit CLI (snix)   │
                                └────────────┬────────────┘
                                             │
-                     ┌──────────────────────┴──────────────────────┐
-                     ▼                                             ▼
-          ┌─────────────────────┐                       ┌─────────────────────┐
-          │  Local Credentials  │                       │ Execution Engine    │
-          │  AES-256 Vault      │                       │ - Code Scripts      │
-          │ (~/.config/snippkit)│                       │ - Shell Playbooks   │
-          └─────────────────────┘                       └─────────────────────┘
+                     ┌──────────────────────┼──────────────────────┐
+                     ▼                      ▼                      ▼
+          ┌─────────────────────┐┌─────────────────────┐┌─────────────────────┐
+          │  Local Credentials  ││  Execution Engine   ││  AI Agent Skills    │
+          │  AES-256 Vault      ││  - Code Scripts     ││  - Antigravity      │
+          │ (~/.config/snippkit)││  - Shell Playbooks  ││  - Cursor / Windsurf│
+          └─────────────────────┘└─────────────────────┘└─────────────────────┘
                                             │
                                             ▼
                           ┌───────────────────────────────────┐
@@ -29,6 +29,10 @@ This document is the definitive master manual covering **every single command, s
                           │ GET  /api/cli/list   (List/Search)│
                           │ GET  /api/cli/run    (Fetch/Run)  │
                           │ POST /api/cli/delete (Delete)     │
+                          │ GET  /api/skills/read (Read/Decr) │
+                          │ POST /api/skills/install (Track)  │
+                          │ POST /api/skills/create (Publish) │
+                          │ GET  /api/skills/search (Discover)│
                           └───────────────────────────────────┘
 ```
 
@@ -41,15 +45,16 @@ This document is the definitive master manual covering **every single command, s
 3. [Authentication Commands (`auth`, `whoami`, `login`, `logout`)](#3-authentication-commands-auth-whoami-login-logout)
 4. [Code Snippet Management (`snippets`, `snippet`)](#4-code-snippet-management-snippets-snippet)
 5. [Command Playbook Management (`commands`, `command`)](#5-command-playbook-management-commands-command)
-6. [Execution Engine (`run`, `script`, `cmd`)](#6-execution-engine-run-script-cmd)
-7. [Source Code Upload (`push`)](#7-source-code-upload-push)
-8. [Safe Deletion Commands (`delete`, `rm`, `remove`)](#8-safe-deletion-commands-delete-rm-remove)
-9. [Search & Discovery (`search`)](#9-search--discovery-search)
-10. [System Diagnostics (`doctor`)](#10-system-diagnostics-doctor)
-11. [Configuration Inspector (`config`)](#11-configuration-inspector-config)
-12. [Legacy Backward Compatibility Commands (`list`, `get`, `pull`)](#12-legacy-backward-compatibility-commands-list-get-pull)
-13. [Complete Syntax & Option Matrix](#13-complete-syntax--option-matrix)
-14. [Master Quick Reference Cheat Sheet](#14-master-quick-reference-cheat-sheet)
+6. [AI Agent Skills Management (`skill`, `skills`)](#6-ai-agent-skills-management-skill-skills)
+7. [Execution Engine (`run`, `script`, `cmd`)](#7-execution-engine-run-script-cmd)
+8. [Source Code Upload (`push`)](#8-source-code-upload-push)
+9. [Safe Deletion Commands (`delete`, `rm`, `remove`)](#9-safe-deletion-commands-delete-rm-remove)
+10. [Search & Discovery (`search`)](#10-search--discovery-search)
+11. [System Diagnostics (`doctor`)](#11-system-diagnostics-doctor)
+12. [Configuration Inspector (`config`)](#12-configuration-inspector-config)
+13. [Legacy Backward Compatibility Commands (`list`, `get`, `pull`)](#13-legacy-backward-compatibility-commands-list-get-pull)
+14. [Complete Syntax & Option Matrix](#14-complete-syntax--option-matrix)
+15. [Master Quick Reference Cheat Sheet](#15-master-quick-reference-cheat-sheet)
 
 ---
 
@@ -233,7 +238,92 @@ Manage multi-step command playbook resources (`command` = single playbook, `comm
 
 ---
 
-## 6. Execution Engine (`run`, `script`, `cmd`)
+## 6. AI Agent Skills Management (`skill`, `skills`)
+
+Install, discover, scaffold, and publish procedural Agent Skills (`SKILL.md`) into your workspace with multi-agent compatibility for **Google Antigravity**, **Cursor**, **Windsurf**, and **Claude Code**.
+
+### Subcommands Reference
+
+| Subcommand | Alias | Purpose |
+| :--- | :--- | :--- |
+| `add <slug>` | `install` | Download and install skill directly into workspace (`.agents/skills/<slug>/SKILL.md`) |
+| `list` | `ls` | List all skills detected in current workspace (or remote registry via `--remote`) |
+| `view <slug>` | `show` | Inspect frontmatter metadata and markdown instructions without installing |
+| `search <query>` | N/A | Search public agent skills on the SnippKit Skills Registry |
+| `remove <slug>` | `rm` | Cleanly uninstalls and deletes skill directory from workspace |
+| `init <name>` | N/A | Scaffold a clean, compliant `SKILL.md` template with YAML frontmatter |
+| `push <path>` | `publish` | Register and publish local skill markdown file to SnippKit Registry |
+
+---
+
+### Command Forms & Options
+
+#### Form 1: `snix skill add <slug> [options]`
+- **Purpose**: Installs procedural skill files into the project. Automatically detects agent environment directories or creates `.agents/skills/<slug>/SKILL.md`.
+- **Options**:
+  - `-t, --target <env>`: Target agent environment (`antigravity`, `cursor`, `windsurf`, `claude`).
+  - `-f, --force`: Overwrite existing skill file without prompting.
+  - `-o, --out <path>`: Custom destination output path.
+- **Examples**:
+  ```bash
+  snix skill add premium-ui-architect
+  snix skill add @unhuman/premium-ui-architect --target cursor
+  snix skill add blue-theme-palette --force
+  ```
+
+#### Form 2: `snix skill list [options]`
+- **Purpose**: Scans project tree and displays formatted table of installed skills, author, version, and agents.
+- **Options**:
+  - `--remote`: List all remote skills published on your SnippKit account.
+  - `--page <num>`: Page number (remote mode).
+  - `--limit <num>`: Items per page (remote mode).
+- **Examples**:
+  ```bash
+  snix skill list
+  snix skill list --remote
+  ```
+
+#### Form 3: `snix skill view <slug>`
+- **Purpose**: Fetches and renders skill YAML frontmatter (name, description, version, compatibility) and markdown instructions in your terminal.
+- **Example**:
+  ```bash
+  snix skill view premium-ui-architect
+  ```
+
+#### Form 4: `snix skill search <query>`
+- **Purpose**: Searches SnippKit registry for procedural skills matching keyword, tag, or topic.
+- **Example**:
+  ```bash
+  snix skill search "theme"
+  snix skill search "nextjs"
+  ```
+
+#### Form 5: `snix skill remove <slug> [options]`
+- **Purpose**: Removes skill instruction files from project directory.
+- **Options**:
+  - `-y, --yes`: Non-interactive confirmation.
+- **Example**:
+  ```bash
+  snix skill remove premium-ui-architect
+  ```
+
+#### Form 6: `snix skill init <name>`
+- **Purpose**: Scaffolds a new standard `SKILL.md` template in `.agents/skills/<name>/SKILL.md`.
+- **Example**:
+  ```bash
+  snix skill init my-custom-agent-skill
+  ```
+
+#### Form 7: `snix skill push <path>`
+- **Purpose**: Validates YAML frontmatter and registers a local skill directly to SnippKit Skills Registry.
+- **Example**:
+  ```bash
+  snix skill push .agents/skills/my-skill/SKILL.md
+  ```
+
+---
+
+## 7. Execution Engine (`run`, `script`, `cmd`)
 
 Fetch and execute code scripts or command playbooks locally.
 
@@ -292,7 +382,7 @@ Fetch and execute code scripts or command playbooks locally.
 
 ---
 
-## 7. Source Code Upload (`push`)
+## 8. Source Code Upload (`push`)
 
 Upload local files or directory trees to your SnippKit library with automatic language detection, rate-limiting protection, folder organization, and inline modifiers.
 
@@ -358,7 +448,7 @@ snix push ./scripts -r --public --folder "DevOps" --yes
 
 ---
 
-## 8. Safe Deletion Commands (`delete`, `rm`, `remove`)
+## 9. Safe Deletion Commands (`delete`, `rm`, `remove`)
 
 Top-level convenience shortcuts for deleting database items with non-guessing ambiguity protection.
 
@@ -389,7 +479,7 @@ snix remove <ids...> [options]
 
 ---
 
-## 9. Search & Discovery (`search`)
+## 10. Search & Discovery (`search`)
 
 ### `snix search <query>`
 - **Purpose**: Searches saved snippets and command playbooks in your library matching search text (`GET /api/cli/list?search=<query>`).
@@ -401,7 +491,7 @@ snix remove <ids...> [options]
 
 ---
 
-## 10. System Diagnostics (`doctor`)
+## 11. System Diagnostics (`doctor`)
 
 ### `snix doctor`
 - **Purpose**: Runs a health check on your local CLI environment (Node.js version, OS platform, API URL connectivity, authenticated key status, and availability of 10 language runners).
@@ -412,7 +502,7 @@ snix remove <ids...> [options]
 
 ---
 
-## 11. Configuration Inspector (`config`)
+## 12. Configuration Inspector (`config`)
 
 ### `snix config`
 - **Purpose**: Displays current CLI configuration settings securely without exposing secrets (API Base URL, Masked Key Prefix).
@@ -423,7 +513,7 @@ snix remove <ids...> [options]
 
 ---
 
-## 12. Legacy Backward Compatibility Commands (`list`, `get`, `pull`)
+## 13. Legacy Backward Compatibility Commands (`list`, `get`, `pull`)
 
 | Legacy Command | Options | Modern Canonical Replacement | Purpose |
 | :--- | :--- | :--- | :--- |
@@ -433,7 +523,7 @@ snix remove <ids...> [options]
 
 ---
 
-## 13. Complete Syntax & Option Matrix
+## 14. Complete Syntax & Option Matrix
 
 | Command | Subcommand / Target | Short Flags | Long Flags | Description |
 | :--- | :--- | :--- | :--- | :--- |
@@ -449,6 +539,13 @@ snix remove <ids...> [options]
 | `commands` | `show <id>` | N/A | N/A | Display playbook steps |
 | `commands` | `pull <id>` | `-f` | `--file <path>` | Download playbook JSON (`title_id.json`) |
 | `commands` | `delete <ids...>` | `-y` | `--yes` | Delete one or more playbooks from database |
+| `skill` | `add <slug>` | `-g`<br>`-y` | `--global`<br>`--yes`<br>`--dir <path>`<br>`--agent <agents...>` | Install skill into workspace (`.agents/skills/`) or global directory |
+| `skill` | `list` | `-g` | `--global`<br>`--json` | List installed agent skills in workspace or globally |
+| `skill` | `view <slug>` | N/A | `--json` | Inspect skill metadata, instructions, and file tree |
+| `skill` | `search <query>` | N/A | `--json` | Search public skill registry on SnippKit |
+| `skill` | `remove <slug>` | `-g`<br>`-y` | `--global`<br>`--yes` | Remove installed skill from workspace or global |
+| `skill` | `init <name>` | N/A | `--dir <path>` | Scaffold new standard `SKILL.md` template |
+| `skill` | `push <dir>` | `-p` | `--public`<br>`--tags <tags>` | Publish skill folder to SnippKit Registry |
 | `run` | `script <id>` | N/A | N/A | Execute single code script snippet |
 | `run` | `scripts <ids...>` | N/A | N/A | Execute multiple code scripts sequentially |
 | `run` | `command <id>` | `-y` | `--yes` | Execute single command playbook |
@@ -464,7 +561,7 @@ snix remove <ids...> [options]
 
 ---
 
-## 14. Master Quick Reference Cheat Sheet
+## 15. Master Quick Reference Cheat Sheet
 
 ```bash
 # ---------------------------------------------------------
@@ -474,6 +571,18 @@ snix auth login                           # Sign in with API Key
 snix auth status                          # View session status
 snix whoami                               # Shortcut for auth status
 snix auth logout                          # Sign out
+
+# ---------------------------------------------------------
+# AI AGENT SKILLS (v3.0)
+# ---------------------------------------------------------
+snix skill add nextjs-tailwind            # Install skill into .agents/skills/
+snix skill add nextjs-tailwind --global   # Install skill globally (~/.gemini/antigravity/skills/)
+snix skill list                           # List skills installed in project
+snix skill view nextjs-tailwind           # Inspect skill metadata and instructions
+snix skill search "theme"                 # Search public skill registry
+snix skill remove nextjs-tailwind -y      # Remove skill from workspace
+snix skill init my-skill                  # Scaffold new SKILL.md template
+snix skill push ./my-skill --public       # Publish skill to registry
 
 # ---------------------------------------------------------
 # CODE SNIPPETS

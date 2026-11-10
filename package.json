@@ -1,6 +1,6 @@
 {
   "name": "@snippkit/cli",
-  "version": "2.0.3",
+  "version": "3.0.2",
   "description": "Official CLI for SnippKit",
   "type": "module",
   "main": "src/index.js",
@@ -16,6 +16,14 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yaseen549/snippkit-cli.git"
+  },
+  "homepage": "https://github.com/Yaseen549/snippkit-cli#readme",
+  "bugs": {
+    "url": "https://github.com/Yaseen549/snippkit-cli/issues"
   },
   "keywords": [
     "cli",
@@ -42,6 +50,7 @@
     "build": "node build.js",
     "test": "vitest run",
     "prepublishOnly": "npm run test && npm run build",
-    "package": "npm run build && pkg dist/snix.cjs --name snix --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --out-path ./executables"
+    "package": "npm run build && pkg dist/snix.cjs --name snix --targets node18-win-x64,node18-linux-x64,node18-macos-x64 --out-path ./executables",
+    "package:deb": "npm run package && node scripts/build-deb.js"
   }
 }

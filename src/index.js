@@ -1,5 +1,5 @@
-import fs from 'fs';
 import { Command } from 'commander';
+import { VERSION } from './version.js';
 import { login, logout, status, whoami } from './commands/auth.js';
 import { listItems, showItem, pullItem, deleteItem, warnDeprecated } from './commands/manage.js';
 import { runSnippets } from './commands/run.js';
@@ -7,32 +7,21 @@ import { pushFiles } from './commands/push.js';
 import { doctor } from './commands/doctor.js';
 import { search } from './commands/search.js';
 import { showConfig } from './commands/config.js';
-
-// --- VERSION RESOLUTION ---
-let version = '2.0.0';
-if (globalThis.SNIX_VERSION) {
-  version = globalThis.SNIX_VERSION;
-} else {
-  try {
-    const packageJsonUrl = new URL('../package.json', import.meta.url);
-    const pkg = JSON.parse(fs.readFileSync(packageJsonUrl, 'utf8'));
-    version = pkg.version;
-  } catch (e) {
-    version = '2.0.0';
-  }
-}
+import { addSkill, listSkills, removeSkill, viewSkill, searchSkills, initSkill, pushSkill } from './commands/skill.js';
 
 const program = new Command();
 
 program
   .name('snix')
-  .description('Official Terminal Companion for SnippKit — Manage, run, pull, push, and delete snippets & playbooks')
-  .version(version);
+  .description('Official Terminal Companion for SnippKit — Manage, run, pull, push snippets, playbooks & AI agent skills')
+  .version(VERSION, '-v, --version', 'Output current CLI version');
 
 // Customizing Main Help Output Layout
 program.addHelpText('after', `
 EXAMPLES
   $ snix auth login
+  $ snix skill add premium-ui-architect
+  $ snix skill list
   $ snix snippets list
   $ snix run hello-python
   $ snix script sync-db
@@ -266,7 +255,79 @@ EXAMPLES
 `);
 
 // =========================================================
-// 6. UTILITIES (search, doctor, config)
+// 6. AI AGENT SKILLS MANAGEMENT (skill add, list, remove, view, search, init)
+// =========================================================
+const registerSkillCommands = (cmdGroup) => {
+  cmdGroup.command('add <identifier>')
+    .alias('install')
+    .alias('get')
+    .description('Download and install an AI agent skill into the local project (.agents, .cursor, .windsurf)')
+    .option('-t, --target <env>', 'Target agent environment (antigravity, cursor, windsurf, claude)')
+    .option('-f, --force', 'Overwrite existing skill file without prompting')
+    .option('-o, --out <path>', 'Custom destination output path')
+    .action(addSkill);
+
+  cmdGroup.command('list')
+    .alias('ls')
+    .description('List installed AI agent skills in current workspace (or remote skills with --remote)')
+    .option('-r, --remote', 'Fetch skills from SnippKit library instead of local files')
+    .action(listSkills);
+
+  cmdGroup.command('remove <identifier>')
+    .alias('rm')
+    .alias('delete')
+    .alias('uninstall')
+    .description('Remove an AI agent skill from local workspace')
+    .option('-y, --yes', 'Bypass confirmation prompt')
+    .action(removeSkill);
+
+  cmdGroup.command('view <identifier>')
+    .alias('show')
+    .alias('info')
+    .description('Display skill metadata and instruction preview without installing')
+    .action(viewSkill);
+
+  cmdGroup.command('search <query>')
+    .description('Search public agent skills on SnippKit directory')
+    .action(searchSkills);
+
+  cmdGroup.command('init <name>')
+    .description('Scaffold a new AI agent skill template in the local project')
+    .option('-t, --target <env>', 'Target agent environment (antigravity, cursor, windsurf, claude)')
+    .option('-f, --force', 'Overwrite existing file')
+    .action(initSkill);
+
+  cmdGroup.command('push <path>')
+    .alias('publish')
+    .description('Publish a local skill markdown file (.agents, .cursor) to SnippKit')
+    .option('-p, --public', 'Publish as public skill visible to community (default)')
+    .option('--private', 'Publish as private encrypted skill')
+    .option('-s, --slug <slug>', 'Custom skill slug')
+    .option('--title <title>', 'Custom skill title')
+    .option('--tags <tags>', 'Comma-separated tags')
+    .action(pushSkill);
+};
+
+const skillCmd = program.command('skill').description('Manage, install, and discover AI agent skills (Antigravity, Cursor, Windsurf)');
+registerSkillCommands(skillCmd);
+skillCmd.addHelpText('after', `
+EXAMPLES
+  $ snix skill add premium-ui-architect
+  $ snix skill add @unhuman/premium-ui-architect --target cursor
+  $ snix skill list
+  $ snix skill list --remote
+  $ snix skill view premium-ui-architect
+  $ snix skill search ui
+  $ snix skill remove premium-ui-architect
+  $ snix skill init my-custom-agent-skill
+`);
+
+// Plural alias: skills
+const skillsAliasCmd = program.command('skills', { hidden: true }).description('Manage AI agent skills (alias)');
+registerSkillCommands(skillsAliasCmd);
+
+// =========================================================
+// 7. UTILITIES (search, doctor, config)
 // =========================================================
 program.command('search <query>')
   .description('Search your saved snippets and command playbooks by title, slug, or language')
@@ -281,7 +342,7 @@ program.command('config')
   .action(showConfig);
 
 // =========================================================
-// 7. LEGACY BACKWARD COMPATIBILITY COMMANDS
+// 8. LEGACY BACKWARD COMPATIBILITY COMMANDS
 // =========================================================
 program
   .command('list')

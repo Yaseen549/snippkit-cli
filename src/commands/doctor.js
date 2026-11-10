@@ -16,11 +16,14 @@ function checkCommand(cmd) {
   }
 }
 
+import { VERSION } from '../version.js';
+
 export async function doctor() {
   console.log(chalk.bold.cyan('\nSnippKit CLI Environment Doctor\n'));
 
   // 1. SYSTEM & NODE
   console.log(chalk.bold('System & Environment:'));
+  console.log(`  ${chalk.green('✓')} SnippKit CLI    v${VERSION}`);
   console.log(`  ${chalk.green('✓')} Node.js          ${process.version}`);
   console.log(`  ${chalk.green('✓')} OS Platform      ${os.type()} ${os.arch()} (${os.release()})`);
   console.log(`  ${chalk.green('✓')} Configured API  ${getApiBaseUrl()}`);

@@ -13,9 +13,10 @@ export async function search(query) {
   console.log(chalk.cyan(`\n🔍 Searching SnippKit library for '${chalk.bold(term)}'...\n`));
 
   try {
-    const [snippetsRes, commandsRes] = await Promise.all([
+    const [snippetsRes, commandsRes, skillsRes] = await Promise.all([
       apiClient.get(`/api/cli/list?type=snippets&search=${encodeURIComponent(term)}`).catch(() => ({ data: [] })),
-      apiClient.get(`/api/cli/list?type=commands&search=${encodeURIComponent(term)}`).catch(() => ({ data: [] }))
+      apiClient.get(`/api/cli/list?type=commands&search=${encodeURIComponent(term)}`).catch(() => ({ data: [] })),
+      apiClient.get(`/api/skills/search?q=${encodeURIComponent(term)}`).catch(() => ({ data: [] }))
     ]);
 
     const termLower = term.toLowerCase();
@@ -33,8 +34,15 @@ export async function search(query) {
       return title.includes(termLower) || slug.includes(termLower);
     });
 
-    if (snippets.length === 0 && commands.length === 0) {
-      console.log(chalk.yellow(`No matching snippets or command playbooks found for '${term}'.\n`));
+    const skills = (skillsRes.data || []).filter(item => {
+      const title = (item.title || '').toLowerCase();
+      const slug = (item.slug || '').toLowerCase();
+      const desc = (item.description || '').toLowerCase();
+      return title.includes(termLower) || slug.includes(termLower) || desc.includes(termLower);
+    });
+
+    if (snippets.length === 0 && commands.length === 0 && skills.length === 0) {
+      console.log(chalk.yellow(`No matching snippets, playbooks, or agent skills found for '${term}'.\n`));
       return;
     }
 
@@ -62,6 +70,8 @@ export async function search(query) {
       console.log('');
     }
 
+
+
     if (commands.length > 0) {
       console.log(chalk.bold.cyan(`⚡ Matching Command Playbooks (${commands.length}):\n`));
       console.log(
@@ -87,6 +97,29 @@ export async function search(query) {
       });
       console.log('');
     }
+
+    if (skills.length > 0) {
+      console.log(chalk.bold.cyan(`🤖 Matching AI Agent Skills (${skills.length}):\n`));
+      console.log(
+        chalk.bold.white('Slug'.padEnd(28)) + ' | ' +
+        chalk.bold.white('Title'.padEnd(30)) + ' | ' +
+        chalk.bold.white('Version'.padEnd(10)) + ' | ' +
+        chalk.bold.white('Author'.padEnd(16)) + ' | ' +
+        chalk.bold.white('Views')
+      );
+      console.log(chalk.gray(''.padEnd(100, '─')));
+      skills.forEach(item => {
+        const slug = chalk.yellow.bold((item.slug || "").toString().slice(0, 27).padEnd(28));
+        const title = chalk.white((item.title || "Untitled").toString().slice(0, 29).padEnd(30));
+        const ver = chalk.cyan((item.version || "1.0.0").toString().slice(0, 9).padEnd(10));
+        const author = chalk.magenta((`@${item.author?.username || item.username || 'developer'}`).slice(0, 15).padEnd(16));
+        const views = chalk.dim((item.views || 0).toString());
+        console.log(`${slug} | ${title} | ${ver} | ${author} | ${views}`);
+      });
+      console.log('');
+    }
+
+
 
   } catch (error) {
     const msg = error.response?.data?.error || error.message;

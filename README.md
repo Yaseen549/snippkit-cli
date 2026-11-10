@@ -1,11 +1,11 @@
-# SnippKit CLI (`SNiX`) v2
+# SnippKit CLI (`SNiX`) v3 — AI Agent Skills & Snippet Engine
 
 ![Version](https://img.shields.io/npm/v/@snippkit/cli)
 ![License](https://img.shields.io/npm/l/@snippkit/cli)
 ![Downloads](https://img.shields.io/npm/dt/@snippkit/cli)
 
 The official terminal companion for **SnippKit**.  
-Manage code snippets, run command playbooks, upload local source files, and execute remote scripts directly from your shell.
+Manage code snippets, run command playbooks, upload local source files, execute remote scripts, and install procedural **AI Agent Skills** directly into your workspace.
 
 ---
 
@@ -108,12 +108,31 @@ snix push ./scripts -r --folder "DevOps/Scripts" --yes
 
 ---
 
+### 6. AI Agent Skills (`skill`)
+
+```bash
+snix skill add <slug>                      # Install an Agent Skill to project (.agents/skills/<slug>/SKILL.md)
+snix skill list                            # List installed skills in the current workspace
+snix skill view <slug>                     # View skill instructions and frontmatter in terminal
+snix skill search <query>                  # Search public agent skills from SnippKit Registry
+snix skill remove <slug>                   # Remove an installed skill from the project
+snix skill init <slug>                     # Scaffold a new SKILL.md template in current directory
+snix skill push <slug>                     # Publish local skill to SnippKit Registry
+```
+
+---
+
 ## 💡 Quick Reference Cheat Sheet
 
 | Task | Canonical Command Syntax |
 | :--- | :--- |
 | **Login** | `snix auth login` |
 | **Check Session** | `snix whoami` |
+| **Install AI Skill** | `snix skill add <slug>` |
+| **List Installed Skills** | `snix skill list` |
+| **View Skill Details** | `snix skill view <slug>` |
+| **Search Skills** | `snix skill search <query>` |
+| **Remove Skill** | `snix skill remove <slug>` |
 | **List Snippets (Paged)** | `snix snippets list` |
 | **Show Snippet** | `snix snippets show <id>` |
 | **Pull Snippet (`title_id.ext`)**| `snix snippets pull <id>` |
